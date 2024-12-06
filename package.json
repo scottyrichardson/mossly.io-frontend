@@ -1,7 +1,7 @@
 {
   "name": "mossly.io",
   "version": "1.0.0",
-  "main": "gulpfile.js",
+  "main": "gulpfile.mjs",
   "scripts": {
     "install:dev": "npm install",
     "install:prod": "npm install --omit=dev",
