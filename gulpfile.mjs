@@ -9,6 +9,7 @@ import { deleteAsync } from 'del';
 import rename from 'gulp-rename';
 import postcss from 'gulp-postcss';
 import autoprefixer from 'autoprefixer';
+import { existsSync } from 'fs';
 
 const bs = browserSync.create();
 
@@ -31,7 +32,13 @@ const css = () => {
 };
 
 // JavaScript
-const js = () => {
+const js = (cb) => {
+    if (!existsSync('src/assets/js')) {
+        // If JS directory doesn't exist, just create an empty dir and complete the task
+        return gulp.src('*', {read: false})
+            .pipe(gulp.dest('dist/assets/js'));
+    }
+    
     return gulp.src('src/assets/js/*.js')
         .pipe(sourcemaps.init())
         .pipe(concat('scripts.js'))
