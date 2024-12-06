@@ -26,6 +26,7 @@ body {
 	background-size: cover;
 	background-position: 50% 50%;
 	transition: opacity 0.25s ease-out;
+	background-image: url('../img/bg/bg-5.jpg')
 }
 
 .logo {
