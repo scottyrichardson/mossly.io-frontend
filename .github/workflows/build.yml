@@ -55,7 +55,7 @@ jobs:
 
     - name: HTML Validation
       run: |
-        npx html-validator-cli 'dist/**/*.html' || true
+        npx html-validate "dist/**/*.html"
         
     - name: Check file sizes
       run: |

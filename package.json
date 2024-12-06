@@ -11,11 +11,10 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "dependencies": {
-  },
   "devDependencies": {
     "@squoosh/lib": "^0.5.3",
     "autoprefixer": "^10.4.20",
+    "browser-sync": "^3.0.3",
     "del": "^8.0.0",
     "gulp": "^5.0.0",
     "gulp-clean-css": "^4.3.0",
@@ -25,7 +24,7 @@
     "gulp-rename": "^2.0.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-terser": "^2.1.0",
-    "squoosh": "^0.0.0",
-    "browser-sync": "^3.0.3"
+    "html-validate": "^8.27.0",
+    "squoosh": "^0.0.0"
   }
 }
