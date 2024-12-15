@@ -1,18 +1,45 @@
-# Tooling Setup
+# Tooling setup
 
-Project requires Node with Gulp to build. Install Node. Then use NPM to install Gulp:
-`npm install -g gulp`
+Project requires Node and Gulp to build.
 
-# Env Setup
+Install Node. Then use NPM to install Gulp:
 
-## Dev
+      npm install -g gulp
 
-Install project dependencies with `npm install`
+# Environment setup
 
-Build project with `gulp` or `gulp dev`
+Install project dependencies with:
 
-## Prod
+      npm install
 
-Install project dependencies with `npm install --omit=dev`
+# Building the project
 
-Build project with `gulp prod`
+## Dev environment
+
+Build the project with:
+
+      gulp
+
+or:
+
+      gulp dev
+
+## Prod environment
+
+Build the project with
+
+      gulp prod
+
+# Updating project packages
+
+Install npm-check-updates globally with:
+
+      npm install -g npm-check-updates
+
+Then check for latest project dependencies and set versions to package.json with:
+
+      ncu -u
+
+Finally, update the lockfile and install the new versions with:
+
+      npm install
