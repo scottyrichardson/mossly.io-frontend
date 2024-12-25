@@ -1,99 +1,120 @@
-# Tooling setup
+# Mossly.io Frontend
 
-Project requires Node and Gulp to build.
+This project uses NodeJS and gulp to build a deployable artifact located in `dist`. The artifact gets deployed in a Docker image to an AWS ECR registry. It is then deployed to App Runner that sits behind a CloudFront distribution.
 
-Install Node. Then use NPM to install Gulp:
+**Build and deployment is handled automatically by CI/CD actions in this repo**. The process to manually deploy is detailed below.
 
-      npm install -g gulp
+## Prerequisites
 
-# Environment setup
+- Node.js
+- Docker (for containerization)
+- AWS CLI (for deployment)
 
-Install project dependencies with:
+## NodeJS
 
-      npm install
+Install required packages:
 
-# Building the project
+```bash
+# Install Gulp
+npm install -g gulp npm-check-updates
 
-## Dev environment
+# Install project dependencies:
+npm install
+```
 
-Build the project with:
+### Building the Project
 
-      gulp
+```bash
+gulp
+# or
+gulp prod
+```
 
-or:
+### Updating Dependencies
 
-      gulp dev
+Check and update dependencies:
 
-## Prod environment
+```bash
+# Update package.json versions
+ncu -u
 
-Build the project with
+# Install updated packages
+npm install
+```
 
-      gulp prod
+## Docker
 
-# Updating project packages
+Build and tag image:
 
-Install npm-check-updates globally with:
+```bash
+docker build -t mossly.io .
+```
 
-      npm install -g npm-check-updates
+Run container locally:
 
-Then check for latest project dependencies and set versions to package.json with:
+```bash
+docker run -p 8080:80 mossly.io
+```
 
-      ncu -u
+Access locally at `http://localhost:8080/`
 
-Finally, update the lockfile and install the new versions with:
+## AWS
 
-      npm install
+### CLI
 
-# Docker
+1. Create access key in AWS Portal:
 
-## Local builds
+   - Login to AWS Portal
+   - Navigate to profile → Security Credentials
+   - Create new access key under "Access Keys" section
 
-      docker build -t mossly.io .
+2. Configure AWS CLI with access key:
 
-## Run image in a container
+```bash
+aws configure
+```
 
-      docker run -p 8080:80 mossly.io
+### ECR (Elastic Container Registry)
 
-Access the container locally at
+1. Get AWS account ID:
 
-      http://localhost:8080/
+```bash
+aws sts get-caller-identity --query Account --output text
+```
 
-# AWS
+2. Authenticate with ECR:
 
-## Configure AWS CLI
+```bash
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your-aws-account-id>.dkr.ecr.us-east-1.amazonaws.com
+```
 
-Configure an access key in AWS portal.
+3. Build and push image:
 
-* Login to the portal
-* Click your profile image
-* Click Securty Credentials
-* Under Access Keys, click "Create access key"
+```bash
+# Build local image
+docker build -t mossly.io .
 
-Configure AWS CLI with default putput format of json
+# Tag for ECR
+docker tag mossly.io:latest <your-aws-account-id>.dkr.ecr.us-east-1.amazonaws.com/mossly.io/frontend:latest
 
-      aws configure
+# Push to ECR
+docker push <your-aws-account-id>.dkr.ecr.us-east-1.amazonaws.com/mossly.io/frontend:latest
+```
 
-## Connect Locally to ECR Repo
+### App Runner
 
-Get your AWS account ID
+Deploy new image to App Runner:
 
-      aws sts get-caller-identity --query Account --output text
+```bash
+aws apprunner start-deployment \
+            --service-arn <app-runner-service-arn> \
+            --region <app-runner-region>
+```
 
-Connect your local Docker instance to the ECR URL:
+### CloudFront
 
-      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <your-aws-account-id>.dkr.ecr.us-east-1.amazonaws.com
+Invalidate CloudFront cache:
 
-## Build and push
-
-Build local image if you haven't already
-
-      docker build -t mossly.io .
-
-Tag it for ECR
-
-      docker tag mossly.io:latest <your-aws-account-id>.dkr.ecr.us-east-1.amazonaws.com/mossly.io/frontend:latest
-
-Push to ECR
-
-      docker push <your-aws-account-id>.dkr.ecr.us-east-1.amazonaws.com/mossly.io/frontend:latest
-
+```bash
+aws cloudfront create-invalidation --distribution-id <distribution-id> --paths "/*"
+```
