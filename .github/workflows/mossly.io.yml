@@ -79,34 +79,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Build, tag, and push Docker image
+        uses: scottyrichardson/github-actions/.github/actions/aws-ecr-deploy-image@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_MOSSLY_DEPLOYER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_MOSSLY_DEPLOYER_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+          repository: mossly.io/frontend
+          tags: ${{ github.sha }}
+          dockerfile-path: .
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Delete latest tag
-        env:
-          REPOSITORY: mossly.io/frontend
-        run: |
-          aws ecr batch-delete-image \
-            --repository-name $REPOSITORY \
-            --image-ids imageTag=latest || true
-
-      - name: Build, tag, and push Docker image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: mossly.io/frontend
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-          docker push $REGISTRY/$REPOSITORY:latest
+      - name: Repoint latest tag
+        uses: scottyrichardson/github-actions/.github/actions/aws-ecr-tag-image@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_MOSSLY_DEPLOYER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_MOSSLY_DEPLOYER_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          repository: mossly.io/frontend
+          source-tag: ${{ github.sha }}
+          new-tag: latest
 
   deploy-app-runner:
     name: Deploy [ App Runner ]
