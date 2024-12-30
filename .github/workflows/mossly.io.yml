@@ -105,32 +105,15 @@ jobs:
     needs: [build, validate, deploy-ecr]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Deploy to AWS App Runner
+        uses: scottyrichardson/github-actions/.github/actions/aws-app-runner-deploy@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_MOSSLY_DEPLOYER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_MOSSLY_DEPLOYER_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Deploy to App Runner
-        run: |
-          aws apprunner start-deployment \
-            --service-arn ${{ env.AWS_APP_RUNNER_SERVICE_ARN }} \
-            --region ${{ env.AWS_REGION }}
-
-      - name: Wait for deployment
-        run: |
-          while true; do
-            STATUS=$(aws apprunner describe-service --service-arn ${{ env.AWS_APP_RUNNER_SERVICE_ARN }} --query 'Service.Status' --output text)
-            if [ "$STATUS" = "RUNNING" ]; then
-              break
-            elif [ "$STATUS" = "FAILED" ]; then
-              echo "Deployment failed"
-              exit 1
-            fi
-            echo "Waiting for deployment... Current status: $STATUS"
-            sleep 10
-          done
+          service-arn: ${{ env.AWS_APP_RUNNER_SERVICE_ARN }}
+          timeout-minutes: 30
+          poll-interval: 10
 
   invalidate-cache:
     name: Invalidate Cache [ CloudFront ]
