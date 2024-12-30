@@ -10,6 +10,7 @@ env:
   # AWS
   AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
   AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_ECR_REPOSITORY: ${{ vars.AWS_ECR_REPOSITORY }}
   AWS_APP_RUNNER_SERVICE_ARN: ${{ vars.AWS_APP_RUNNER_SERVICE_ARN }}
   # Build settings
   NODE_VERSION: 20.x
@@ -85,7 +86,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_MOSSLY_DEPLOYER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_MOSSLY_DEPLOYER_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          repository: mossly.io/frontend
+          repository: ${{ env.AWS_ECR_REPOSITORY }}
           tags: ${{ github.sha }}
           dockerfile-path: .
 
@@ -95,7 +96,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_MOSSLY_DEPLOYER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_MOSSLY_DEPLOYER_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          repository: mossly.io/frontend
+          repository: ${{ env.AWS_ECR_REPOSITORY }}
           source-tag: ${{ github.sha }}
           new-tag: latest
 
